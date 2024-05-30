@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockCal V1.0</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            color: #333;
+        }
+        input[type="number"], input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 20px 0;
+            box-sizing: border-box;
+        }
+        input[type="submit"], input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover, input[type="button"]:hover {
+            background-color: #45a049;
+        }
+        .tabs {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+        }
+        .tab {
+            display: none;
+            padding: 20px;
+        }
+        .tab-header {
+            display: flex;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab-header div {
+            padding: 10px;
+            flex: 1;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+        .tab-header div.active {
+            background-color: #ddd;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>StockCal V1.0</h1>
+    <form id="investmentForm">
+        <label for="invest">Invest (in Euro):</label>
+        <input type="number" id="invest" name="invest" required>
+
+        <label for="kaufkurs">Kaufkurs (in Euro):</label>
+        <input type="number" id="kaufkurs" name="kaufkurs" required>
+    </form>
+
+    <div class="result" id="result"></div>
+
+    <div class="tabs">
+        <div class="tab-header">
+            <div class="tab-link active" data-tab="tab1">Gewinn</div>
+            <div class="tab-link" data-tab="tab2">Verkaufskurs</div>
+            <div class="tab-link" data-tab="tab3">Rendite</div>
+        </div>
+
+        <div id="tab1" class="tab" style="display: block;">
+            <label for="gewinn">Gewinn (in Euro):</label>
+            <input type="number" id="gewinn" name="gewinn" min="0" step="0.01">
+            
+        </div>
+
+        <div id="tab2" class="tab">
+            <label for="verkaufkurs">Verkaufskurs (in Euro):</label>
+            <input type="number" id="verkaufkurs" name="verkaufkurs" required>
+           
+        </div>
+
+        <div id="tab3" class="tab">
+            <label for="rendite">Rendite (in %):</label>
+            <input type="number" id="rendite" name="rendite" min="0" max="100" step="0.01">
+           
+        </div>
+    </div>
+
+    <div class="result" id="berechnungResult"></div>
+
+    <script>
+        document.getElementById('investmentForm').addEventListener('input', function() {
+            const kaufkurs = parseFloat(document.getElementById('kaufkurs').value);
+            if (!isNaN(kaufkurs)) {
+                document.getElementById('verkaufkurs').value = kaufkurs;
+            }
+            calculateResults();
+        });
+
+        document.querySelectorAll('.tab-link').forEach(link => {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.tab-link').forEach(item => item.classList.remove('active'));
+                document.querySelectorAll('.tab').forEach(tab => tab.style.display = 'none');
+    
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab).style.display = 'block';
+                resetInputs(this.dataset.tab);
+                if (this.dataset.tab === "tab2") {
+                    calculateResultsTab2();
+                } else {
+                    calculateResults();
+                }
+            });
+        });
+
+        function resetInputs(activeTab) {
+            const inputs = document.querySelectorAll('.tab input[type="number"]');
+            inputs.forEach(input => {
+                if (input.closest('.tab').id !== activeTab) {
+                    input.value = '';
+                }
+            });
+        }
+
+        document.getElementById('verkaufkurs').addEventListener('input', calculateResultsTab2);
+        document.getElementById('gewinn').addEventListener('input', calculateResults);
+        document.getElementById('rendite').addEventListener('input', calculateResults);
+    
+        function calculateResults() {
+            const invest = parseFloat(document.getElementById('invest').value);
+            const kaufkurs = parseFloat(document.getElementById('kaufkurs').value);
+            const anzahlAktien = invest / kaufkurs;
+    
+            const gewinn = parseFloat(document.getElementById('gewinn').value);
+            const rendite = parseFloat(document.getElementById('rendite').value) / 100;
+    
+            let calculatedVerkaufskurs = kaufkurs;
+            let calculatedGewinn = gewinn;
+            let calculatedRendite = rendite;
+    
+            if (!isNaN(gewinn) && gewinn > 0) {
+                calculatedVerkaufskurs = (gewinn / anzahlAktien) + kaufkurs;
+                calculatedRendite = gewinn / invest;
+            } else if (!isNaN(rendite) && rendite > 0) {
+                calculatedGewinn = invest * rendite;
+                calculatedVerkaufskurs = (calculatedGewinn / anzahlAktien) + kaufkurs;
+            }
+
+            const kursDifferenz = calculatedVerkaufskurs - kaufkurs;
+            const gesamtWert = invest + calculatedGewinn;
+    
+            const resultDiv = document.getElementById('berechnungResult');
+            resultDiv.innerHTML = `
+                <p>Verkaufskurs: <strong>${calculatedVerkaufskurs.toFixed(3)} Euro</strong></p>
+                <p>Rendite: <strong>${(calculatedRendite * 100).toFixed(3)}%</strong></p>
+                <p>Gewinn: <strong>${calculatedGewinn.toFixed(3)} Euro</strong></p>
+                <p>Gesamtzielwert: <strong>${gesamtWert.toFixed(3)} Euro</strong></p>
+                <p>Gekaufte Anteile: <strong>${anzahlAktien.toFixed(3)}</strong></p>
+                <p>Kursdifferenz: <strong>${kursDifferenz.toFixed(3)} Euro</strong></p>
+            `;
+        }
+    
+        function calculateResultsTab2() {
+            const invest = parseFloat(document.getElementById('invest').value);
+            const kaufkurs = parseFloat(document.getElementById('kaufkurs').value);
+            const verkaufkurs = parseFloat(document.getElementById('verkaufkurs').value);
+    
+            const anzahlAktien = invest / kaufkurs;
+            const gewinn = anzahlAktien * (verkaufkurs - kaufkurs);
+            const rendite = gewinn / invest;
+
+            const kursDifferenz = verkaufkurs - kaufkurs;
+            const gesamtWert = invest + gewinn;
+    
+            const resultDiv = document.getElementById('berechnungResult');
+            resultDiv.innerHTML = `
+                <p>Verkaufskurs: <strong>${verkaufkurs.toFixed(3)} Euro</strong></p>
+                <p>Rendite: <strong>${(rendite * 100).toFixed(3)}%</strong></p>
+                <p>Gewinn: <strong>${gewinn.toFixed(3)} Euro</strong></p>
+                <p>Gesamtzielwert: <strong>${gesamtWert.toFixed(3)} Euro</strong></p>
+                <p>Gekaufte Anteile: <strong>${anzahlAktien.toFixed(3)}</strong></p>
+                <p>Kursdifferenz: <strong>${kursDifferenz.toFixed(3)} Euro</strong></p>
+            `;
+        }
+    
+        // Initial calculation
+        calculateResults();
+    </script>
+</body>
+</html>
