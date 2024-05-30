@@ -168,13 +168,15 @@
     
             const resultDiv = document.getElementById('berechnungResult');
             resultDiv.innerHTML = `
+                <p>Gekaufte Anteile: <strong>${anzahlAktien.toFixed(3)}</strong></p>
+                <p>---------------------------------<p
                 <p>Verkaufskurs: <strong>${calculatedVerkaufskurs.toFixed(3)} Euro</strong></p>
                 <p>Kursdifferenz: <strong>${kursDifferenz.toFixed(2)} Euro</strong></p>
-                 <p>-----------------------------------------------------------------------<p>
+                <p>---------------------------------<p>
                 <p>Rendite: <strong>${(calculatedRendite * 100).toFixed(2)}%</strong></p>
                 <p>Gewinn: <strong>${calculatedGewinn.toFixed(2)} Euro</strong></p>
                 <p>Gesamtzielwert: <strong>${gesamtWert.toFixed(2)} Euro</strong></p>
-                <p>Gekaufte Anteile: <strong>${anzahlAktien.toFixed(3)}</strong></p>
+                
                
             `;
         }
@@ -193,13 +195,14 @@
     
             const resultDiv = document.getElementById('berechnungResult');
             resultDiv.innerHTML = `
+                <p>Gekaufte Anteile: <strong>${anzahlAktien.toFixed(3)}</strong></p>
+                <p>---------------------------------<p>
                 <p>Verkaufskurs: <strong>${verkaufkurs.toFixed(3)} Euro</strong></p>
-                 <p>Kursdifferenz: <strong>${kursDifferenz.toFixed(2)} Euro</strong></p>
-                 <p>-----------------------------------------------------------------------<p>
+                <p>Kursdifferenz: <strong>${kursDifferenz.toFixed(2)} Euro</strong></p>
+                <p>---------------------------------<p>
                 <p>Rendite: <strong>${(rendite * 100).toFixed(2)}%</strong></p>
                 <p>Gewinn: <strong>${gewinn.toFixed(2)} Euro</strong></p>
                 <p>Gesamtzielwert: <strong>${gesamtWert.toFixed(2)} Euro</strong></p>
-                <p>Gekaufte Anteile: <strong>${anzahlAktien.toFixed(3)}</strong></p>
             `;
         }
     
