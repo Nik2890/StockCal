@@ -100,14 +100,23 @@
         <input type="number" id="kaufkurs" name="kaufkurs" required>
     </form>
 
+
+
+
     <div class="result" id="result"></div>
+
+
 
     <div class="tabs">
         <div class="tab-header">
             <div class="tab-link active" data-tab="tab1">Gewinn</div>
             <div class="tab-link" data-tab="tab2">Verkaufskurs</div>
             <div class="tab-link" data-tab="tab3">Rendite</div>
+            <div class="tab-link" data-tab="tab4">Stoplose</div>
         </div>
+
+       
+
 
         <div id="tab1" class="tab" style="display: block;">
             <label for="gewinn">Gewinn (in Euro):</label>
@@ -115,20 +124,52 @@
             
         </div>
 
+
         <div id="tab2" class="tab">
             <label for="verkaufkurs">Verkaufskurs (in Euro):</label>
             <input type="number" id="verkaufkurs" name="verkaufkurs" required>
            
         </div>
 
+
         <div id="tab3" class="tab">
             <label for="rendite">Rendite (in %):</label>
             <input type="number" id="rendite" name="rendite" min="0" max="100" step="0.01">
            
         </div>
+
+        <div id="tab4" class="tab">
+            <label for="BuyIn">BuyIn Aktienkurs (in Euro):</label>
+            <input type="number" id="BuyIn" name="BuyIn" min="0" max="10000" step="0.1">
+
+            <label for="anzahlAktienEingabe">Anzahl Aktien (in Stück):</label>
+            <input type="number" id="anzahlAktienEingabe" name="anzahlAktienEingabe" min="0" max="1000" step="1">
+
+            <label for="stoplose">Stoplose (in Euro):</label>
+            <input type="number" id="stoplose" name="stoplose" min="0" max="1000" step="1">
+            <label for="OptionArt">Positive oder Negativ:</label>
+    <div>
+            <select id="OptionArt">
+                <option value="Verlust">Verlust</option>
+                <option value="Gewinn">Gewinn</option>
+              </select>
+            </div>
+           
+        </div>
+
+
+
     </div>
 
     <div class="result" id="berechnungResult"></div>
+
+
+
+
+
+
+
+
 
     <script>
         document.getElementById('investmentForm').addEventListener('input', function() {
@@ -167,25 +208,61 @@
         document.getElementById('verkaufkurs').addEventListener('input', calculateResultsTab2);
         document.getElementById('gewinn').addEventListener('input', calculateResults);
         document.getElementById('rendite').addEventListener('input', calculateResults);
+        document.getElementById('stoplose').addEventListener('input', calculateResults);
+        document.getElementById('BuyIn').addEventListener('input', calculateResults);
+        document.getElementById('anzahlAktienEingabe').addEventListener('input', calculateResults);
+        document.getElementById('OptionArt').addEventListener('input', calculateResults);
+        
     
         function calculateResults() {
             const invest = parseFloat(document.getElementById('invest').value);
             const kaufkurs = parseFloat(document.getElementById('kaufkurs').value);
-            const anzahlAktien = invest / kaufkurs;
+            let anzahlAktien = invest / kaufkurs;
+
+            let stoplose = parseFloat(document.getElementById('stoplose').value);
+            const anzahlAktienEingabe = parseFloat(document.getElementById('anzahlAktienEingabe').value);
+            const BuyIn = parseFloat(document.getElementById('BuyIn').value);
     
             const gewinn = parseFloat(document.getElementById('gewinn').value);
             const rendite = parseFloat(document.getElementById('rendite').value) / 100;
+
+            const OptionArt = document.getElementById('OptionArt').value;
     
             let calculatedVerkaufskurs = kaufkurs;
             let calculatedGewinn = gewinn;
             let calculatedRendite = rendite;
+            let calculatedanzahlAktienEingabe = anzahlAktienEingabe;
+            let calculatedanzahlBuyIn = BuyIn;
+            let calculatedanzahlOption = OptionArt;
+            let calculatedanzahlStoplose = stoplose ;
+          
     
+
+
+
+
             if (!isNaN(gewinn) && gewinn > 0) {
                 calculatedVerkaufskurs = (gewinn / anzahlAktien) + kaufkurs;
                 calculatedRendite = gewinn / invest;
             } else if (!isNaN(rendite) && rendite > 0) {
                 calculatedGewinn = invest * rendite;
                 calculatedVerkaufskurs = (calculatedGewinn / anzahlAktien) + kaufkurs;
+            }
+            else if (!isNaN(stoplose) && stoplose != "") {
+
+                if(calculatedanzahlOption == "Verlust"){
+                    stoplose = stoplose *-1
+                };
+
+                calculatedanzahlAktien =  anzahlAktienEingabe;
+                calculatedVerkaufskurs = (((calculatedanzahlBuyIn * calculatedanzahlAktien)+stoplose)/calculatedanzahlAktienEingabe);
+                console.log("calculatedanzahlAktienEingabe", calculatedanzahlAktienEingabe);
+                anzahlAktien  = calculatedanzahlAktienEingabe
+
+                calculatedGewinn = stoplose;
+                calculatedRendite = calculatedGewinn / (calculatedanzahlBuyIn*calculatedanzahlAktienEingabe);
+                
+
             }
 
             const kursDifferenz = calculatedVerkaufskurs - kaufkurs;
@@ -220,7 +297,7 @@
     
             const resultDiv = document.getElementById('berechnungResult');
             resultDiv.innerHTML = `
-                <p>Gekaufte Anteile: <strong>${anzahlAktien.toFixed(3)}</strong></p>
+                <p>Gekaufte Anteile: <strong>${calculatedanzahlAktien.toFixed(3)}</strong></p>
                 <p>---------------------------------<p>
                 <p>Verkaufskurs: <strong>${verkaufkurs.toFixed(3)} Euro</strong></p>
                 <p>Kursdifferenz: <strong>${kursDifferenz.toFixed(2)} Euro</strong></p>
