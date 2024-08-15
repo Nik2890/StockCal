@@ -288,8 +288,8 @@
             const kaufkurs = parseFloat(document.getElementById('kaufkurs').value);
             const verkaufkurs = parseFloat(document.getElementById('verkaufkurs').value);
     
-            const anzahlAktien = invest / kaufkurs;
-            const gewinn = anzahlAktien * (verkaufkurs - kaufkurs);
+            const calculateanzahlAktien = invest / kaufkurs;
+            const gewinn = calculateanzahlAktien * (verkaufkurs - kaufkurs);
             const rendite = gewinn / invest;
 
             const kursDifferenz = verkaufkurs - kaufkurs;
@@ -297,7 +297,7 @@
     
             const resultDiv = document.getElementById('berechnungResult');
             resultDiv.innerHTML = `
-                <p>Gekaufte Anteile: <strong>${calculatedanzahlAktien.toFixed(3)}</strong></p>
+                <p>Gekaufte Anteile: <strong>${calculateanzahlAktien.toFixed(3)}</strong></p>
                 <p>---------------------------------<p>
                 <p>Verkaufskurs: <strong>${verkaufkurs.toFixed(3)} Euro</strong></p>
                 <p>Kursdifferenz: <strong>${kursDifferenz.toFixed(2)} Euro</strong></p>
